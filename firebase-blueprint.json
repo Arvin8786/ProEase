@@ -1,0 +1,333 @@
+{
+  "entities": {
+    "Item": {
+      "title": "Inventory Item",
+      "description": "Represents a single item in the inventory.",
+      "type": "object",
+      "properties": {
+        "sku": { "type": "string", "description": "Stock Keeping Unit" },
+        "name": { "type": "string", "description": "Item name" },
+        "description": { "type": "string", "description": "Item description" },
+        "unit": { "type": "string", "description": "Unit of measure (e.g., PCS, KG)" },
+        "currentStock": { "type": "number", "description": "Current quantity in stock" },
+        "minStock": { "type": "number", "description": "Minimum stock level for alerts" },
+        "category": { "type": "string", "description": "Item category" },
+        "lastUpdated": { "type": "string", "format": "date-time" }
+      },
+      "required": ["sku", "name", "unit", "currentStock"]
+    },
+    "PurchaseRequest": {
+      "title": "Purchase Request",
+      "description": "A request to purchase new items.",
+      "type": "object",
+      "properties": {
+        "prNumber": { "type": "string" },
+        "requesterId": { "type": "string" },
+        "requesterName": { "type": "string" },
+        "departmentCode": { "type": "string" },
+        "deliveryDate": { "type": "string", "format": "date" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected", "ordered"] },
+        "items": { "type": "array" },
+        "totalEstimatedCost": { "type": "number" },
+        "poNumber": { "type": "string" },
+        "approvedBy": { "type": "string" },
+        "approvedAt": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["requesterId", "status", "items", "createdAt", "departmentCode", "deliveryDate"]
+    },
+    "PurchaseOrder": {
+      "title": "Purchase Order",
+      "description": "Generated PO authorized by manager or owner.",
+      "type": "object",
+      "properties": {
+        "poNumber": { "type": "string" },
+        "prId": { "type": "string" },
+        "prNumber": { "type": "string" },
+        "vendorCode": { "type": "string" },
+        "vendorName": { "type": "string" },
+        "deliveryDate": { "type": "string" },
+        "departmentCode": { "type": "string" },
+        "items": { "type": "array" },
+        "totalAmount": { "type": "number" },
+        "status": { "type": "string", "enum": ["issued", "partially_received", "completed", "cancelled"] },
+        "approvedBy": { "type": "string" },
+        "approvedAt": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["poNumber", "vendorName", "items", "totalAmount", "status", "approvedBy"]
+    },
+    "VendorOrder": {
+      "title": "Vendor Order",
+      "description": "Automated order routed to digital vendor portal.",
+      "type": "object",
+      "properties": {
+        "poNumber": { "type": "string" },
+        "vendorCode": { "type": "string" },
+        "vendorName": { "type": "string" },
+        "orderDate": { "type": "string" },
+        "deliveryDate": { "type": "string" },
+        "totalAmount": { "type": "number" },
+        "items": { "type": "array" },
+        "status": { "type": "string", "enum": ["new", "acknowledged", "in_transit", "delivered"] },
+        "sentAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["poNumber", "vendorCode", "vendorName", "totalAmount", "status"]
+    },
+    "GoodsReceipt": {
+      "title": "Goods Receipt",
+      "description": "Record of items received into warehouse with invoice verification.",
+      "type": "object",
+      "properties": {
+        "grNumber": { "type": "string" },
+        "poNumber": { "type": "string" },
+        "invoiceNumber": { "type": "string" },
+        "vendorName": { "type": "string" },
+        "receivedBy": { "type": "string" },
+        "receivedAt": { "type": "string", "format": "date-time" },
+        "isPosted": { "type": "boolean" },
+        "items": { "type": "array" }
+      },
+      "required": ["grNumber", "invoiceNumber", "vendorName", "receivedBy", "receivedAt", "items"]
+    },
+    "GoodsIssuance": {
+      "title": "Goods Issuance",
+      "description": "Record of items issued internally or externally with department validation.",
+      "type": "object",
+      "properties": {
+        "ginNumber": { "type": "string" },
+        "type": { "type": "string", "enum": ["internal", "external"] },
+        "departmentCode": { "type": "string" },
+        "issuedTo": { "type": "string" },
+        "reasoning": { "type": "string" },
+        "externalRecipient": { "type": "string" },
+        "items": { "type": "array" },
+        "issuedBy": { "type": "string" },
+        "issuedAt": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["completed", "pending_approval", "approved", "rejected"] },
+        "approvedBy": { "type": "string" }
+      },
+      "required": ["ginNumber", "type", "issuedBy", "issuedAt", "items", "status"]
+    },
+    "User": {
+      "title": "User Profile",
+      "description": "User information and roles within the ERP.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "storekeeper", "requester", "hr_manager", "employee", "sales", "cashier", "manager", "owner"] },
+        "department": { "type": "string" },
+        "position": { "type": "string" },
+        "superiorId": { "type": "string" },
+        "superiorName": { "type": "string" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "SalesOrder": {
+      "title": "Sales Order",
+      "description": "Customer sales order record.",
+      "type": "object",
+      "properties": {
+        "orderNumber": { "type": "string" },
+        "customerName": { "type": "string" },
+        "salesRepId": { "type": "string" },
+        "salesRepName": { "type": "string" },
+        "orderDate": { "type": "string", "format": "date" },
+        "status": { "type": "string", "enum": ["draft", "confirmed", "dispatched", "delivered", "invoiced"] },
+        "totalAmount": { "type": "number" },
+        "items": { "type": "array" }
+      },
+      "required": ["orderNumber", "customerName", "salesRepId", "totalAmount", "status"]
+    },
+    "Customer": {
+      "title": "Customer Record",
+      "description": "Client account information.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "company": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "status": { "type": "string", "enum": ["lead", "active", "inactive"] }
+      },
+      "required": ["name", "email"]
+    },
+    "Employee": {
+      "title": "Employee Record",
+      "description": "Detailed employee information.",
+      "type": "object",
+      "properties": {
+        "employeeId": { "type": "string" },
+        "fullName": { "type": "string" },
+        "email": { "type": "string" },
+        "department": { "type": "string" },
+        "position": { "type": "string" },
+        "joinDate": { "type": "string", "format": "date" },
+        "salary": { "type": "number" },
+        "status": { "type": "string", "enum": ["active", "on_leave", "terminated"] }
+      },
+      "required": ["fullName", "email", "department", "position"]
+    },
+    "LeaveRequest": {
+      "title": "Leave Request",
+      "description": "Employee leave application.",
+      "type": "object",
+      "properties": {
+        "employeeId": { "type": "string" },
+        "employeeName": { "type": "string" },
+        "type": { "type": "string", "enum": ["annual", "sick", "unpaid"] },
+        "startDate": { "type": "string", "format": "date" },
+        "endDate": { "type": "string", "format": "date" },
+        "reason": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "approvedBy": { "type": "string" }
+      },
+      "required": ["employeeId", "type", "startDate", "endDate", "status"]
+    },
+    "Appraisal": {
+      "title": "Performance Appraisal",
+      "description": "Employee performance review.",
+      "type": "object",
+      "properties": {
+        "employeeId": { "type": "string" },
+        "reviewPeriod": { "type": "string" },
+        "rating": { "type": "number" },
+        "comments": { "type": "string" },
+        "reviewerId": { "type": "string" },
+        "date": { "type": "string", "format": "date" }
+      },
+      "required": ["employeeId", "rating", "date"]
+    },
+    "Payroll": {
+      "title": "Payroll Record",
+      "description": "Monthly salary disbursement record.",
+      "type": "object",
+      "properties": {
+        "employeeId": { "type": "string" },
+        "month": { "type": "string" },
+        "year": { "type": "number" },
+        "basicSalary": { "type": "number" },
+        "allowances": { "type": "number" },
+        "deductions": { "type": "number" },
+        "netSalary": { "type": "number" },
+        "status": { "type": "string", "enum": ["draft", "paid"] }
+      },
+      "required": ["employeeId", "month", "year", "netSalary"]
+    },
+    "SalesTransaction": {
+      "title": "POS Sales Transaction",
+      "description": "Completed point of sale retail transaction.",
+      "type": "object",
+      "properties": {
+        "transactionNumber": { "type": "string" },
+        "cashierId": { "type": "string" },
+        "cashierName": { "type": "string" },
+        "items": { "type": "array" },
+        "subtotal": { "type": "number" },
+        "discounts": { "type": "number" },
+        "tax": { "type": "number" },
+        "total": { "type": "number" },
+        "paymentMethod": { "type": "string" },
+        "membershipId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["transactionNumber", "cashierId", "items", "subtotal", "total", "timestamp"]
+    },
+    "Membership": {
+      "title": "Customer Membership",
+      "description": "Retail loyalty membership account.",
+      "type": "object",
+      "properties": {
+        "membershipId": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "tier": { "type": "string", "enum": ["Silver", "Gold", "Platinum", "VIP"] },
+        "points": { "type": "number" },
+        "discountPercent": { "type": "number" }
+      },
+      "required": ["membershipId", "name", "tier", "points"]
+    },
+    "MarkdownRule": {
+      "title": "Timed Markdown Rule",
+      "description": "Scheduled clearance markdowns for items.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "startHour": { "type": "number" },
+        "endHour": { "type": "number" },
+        "discountPercent": { "type": "number" },
+        "targetTag": { "type": "string" },
+        "isActive": { "type": "boolean" }
+      },
+      "required": ["name", "startHour", "endHour", "discountPercent", "isActive"]
+    }
+  },
+  "firestore": {
+    "/items/{itemId}": {
+      "schema": "Item",
+      "description": "Inventory master data."
+    },
+    "/salesTransactions/{transactionId}": {
+      "schema": "SalesTransaction",
+      "description": "POS sales transaction logs."
+    },
+    "/memberships/{memberId}": {
+      "schema": "Membership",
+      "description": "Customer membership and loyalty accounts."
+    },
+    "/markdownRules/{ruleId}": {
+      "schema": "MarkdownRule",
+      "description": "Automated timed markdown rules."
+    },
+    "/purchaseRequests/{requestId}": {
+      "schema": "PurchaseRequest",
+      "description": "Purchase requests tracking."
+    },
+    "/purchaseOrders/{orderId}": {
+      "schema": "PurchaseOrder",
+      "description": "Approved and issued purchase orders."
+    },
+    "/vendorOrders/{orderId}": {
+      "schema": "VendorOrder",
+      "description": "Orders routed to vendor digital ecosystem."
+    },
+    "/goodsReceipts/{receiptId}": {
+      "schema": "GoodsReceipt",
+      "description": "Goods receipt records."
+    },
+    "/goodsIssuances/{issuanceId}": {
+      "schema": "GoodsIssuance",
+      "description": "Goods issuance records."
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles and permissions."
+    },
+    "/employees/{employeeId}": {
+      "schema": "Employee",
+      "description": "Employee database."
+    },
+    "/leaveRequests/{requestId}": {
+      "schema": "LeaveRequest",
+      "description": "Leave applications."
+    },
+    "/appraisals/{appraisalId}": {
+      "schema": "Appraisal",
+      "description": "Performance reviews."
+    },
+    "/payroll/{payrollId}": {
+      "schema": "Payroll",
+      "description": "Payroll records."
+    },
+    "/salesOrders/{orderId}": {
+      "schema": "SalesOrder",
+      "description": "Sales orders and invoices."
+    },
+    "/customers/{customerId}": {
+      "schema": "Customer",
+      "description": "Customer and client accounts."
+    }
+  }
+}
